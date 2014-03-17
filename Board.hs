@@ -1,11 +1,18 @@
 --Version of 2048 game
 {-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TemplateHaskell #-}
 
-module Game where
+module Board (Board,
+              Index,
+              Row,
+              Col,
+              Square,
+              Block,
+              emptyBoard,
+              getSquare,
+              setSquare,
+              showBoard) where
 
-import Data.Array as Ar
-import Text.Printf
+import Data.Array
 
 data Board = Board (Array Row (Array Col Square))
              deriving (Show)
@@ -34,8 +41,11 @@ data Block = B2
            deriving (Show, Eq, Ord, Enum)
 
 emptyBoard :: Board
-emptyBoard = Board $ array (minBound, maxBound) $ map (,mkRow) [minBound .. maxBound]
-    where mkRow = array (minBound, maxBound) $ map (,Empty) [minBound .. maxBound]
+emptyBoard = Board $ array (minBound, maxBound) $
+                           map (,mkRow) [minBound .. maxBound]
+    where 
+       mkRow = array (minBound, maxBound) $ 
+                     map (,Empty) [minBound .. maxBound]
 
 getSquare :: Board -> (Row, Col) -> Square
 getSquare (Board board) (row, col) =
@@ -57,12 +67,12 @@ showBoard board =
                        concat (replicate topBlankLns blankLine) ++ 
                        borderRow
             where textLine = foldl mkBox "|" indexRange
-                  mkBox acc' col = acc' ++
-                                   (padCenter width $ showSquare $ getSquare board (row, col))
+                  mkBox acc' col = acc'
+                                   ++ padCenter width (showSquare $ getSquare board (row, col))
                                    ++ "|"
-                  blankLine = "|" ++ 
-                              (concat $ replicate rows (replicate width ' ' ++ "|")) ++
-                              "\n"
+                  blankLine = "|" 
+                              ++ concat (replicate rows (replicate width ' ' ++ "|"))
+                              ++ "\n"
                   botBlankLns = (height - 1) `div` 2
                   topBlankLns = height - botBlankLns - 1
        borderRow = replicate ((width+1)*rows + 1) '-' ++ "\n"
@@ -74,7 +84,7 @@ showBoard board =
 padCenter :: Int -> String -> String
 padCenter len str = left ++ str ++ right
     where
-       left = replicate ((len - (length str)) `div` 2) ' '
+       left = replicate ((len - length str) `div` 2) ' '
        right = replicate (len - length str - length left) ' '
 
 showSquare :: Square -> String
