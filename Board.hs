@@ -47,12 +47,12 @@ emptyBoard = Board $ array (minBound, maxBound) $
        mkRow = array (minBound, maxBound) $ 
                      map (,Empty) [minBound .. maxBound]
 
-getSquare :: Board -> (Row, Col) -> Square
-getSquare (Board board) (row, col) =
+getSquare :: Row -> Col -> Board -> Square
+getSquare row col (Board board) =
     board ! row ! col 
 
-setSquare :: Board -> (Row, Col) -> Square -> Board
-setSquare (Board board) (row, col) sqr =
+setSquare :: Row -> Col -> Square -> Board -> Board
+setSquare row col sqr (Board board) =
     Board $ board // [(row, newRow)]
     where newRow = board ! row // [(col, sqr)]
 
@@ -68,7 +68,7 @@ showBoard board =
                        borderRow
             where textLine = foldl mkBox "|" indexRange
                   mkBox acc' col = acc'
-                                   ++ padCenter width (showSquare $ getSquare board (row, col))
+                                   ++ padCenter width (showSquare $ getSquare row col board)
                                    ++ "|"
                   blankLine = "|" 
                               ++ concat (replicate rows (replicate width ' ' ++ "|"))
