@@ -2,11 +2,11 @@
 {-# LANGUAGE TupleSections #-}
 
 module Board (Board,
-              Index,
+              Index (..),
               Row,
               Col,
-              Square,
-              Block,
+              Square (..),
+              Block (..),
               emptyBoard,
               getSquare,
               setSquare,
