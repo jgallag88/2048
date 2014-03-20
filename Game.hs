@@ -10,7 +10,8 @@ move dir board = foldr (pushRow dir) board [minBound .. maxBound]
 
 --Fold a single row
 pushRow :: Move -> Row -> Board -> Board
-pushRow Left row =  pushRow' row minBound (succ minBound) succ
+pushRow Left row  = pushRow' row minBound (succ minBound) succ
+pushRow Right row = pushRow' row maxBound (pred maxBound) pred
 
 pushRow' :: Row ->
             -- ^ Particular row which we are compressing
@@ -38,11 +39,11 @@ pushRow' row endCol startCol next board =
                                       endCol)
           -- ^ Destination is empty, so move block there
           go (Full srcBlock) (Full dstBlock)
-                | srcBlock == dstBlock = (setSquare row startCol Empty $
-                                          setSquare row endCol (Full $ succ srcBlock) board, 
+                | srcBlock == dstBlock = (setSquare row endCol (Full $ succ srcBlock) $
+                                          setSquare row startCol Empty board,
                                           next endCol)
                 -- ^ Block is equal to block in destination, so merge them
-                | otherwise            = (setSquare row startCol Empty $
-                                          setSquare row (next endCol) (Full srcBlock) board,
+                | otherwise            = (setSquare row (next endCol) (Full srcBlock) $
+                                          setSquare row startCol Empty board,
                                           next endCol)
                 -- ^ Block is not equal to destination block, so place it right after
