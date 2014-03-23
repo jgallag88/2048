@@ -1,7 +1,7 @@
 --Version of 2048 game
 {-# LANGUAGE TupleSections #-}
 
-module Board (Board,
+module Board (Board (..),
               Index (..),
               Row,
               Col,
@@ -15,7 +15,9 @@ module Board (Board,
 import Data.Array
 
 data Board = Board (Array Row (Array Col Square))
-             deriving (Show)
+
+instance Show Board where
+    show = showBoard
 
 --Type for indices of the board
 data Index = I0 | I1 | I2 | I3
@@ -25,7 +27,7 @@ type Row = Index
 type Col = Index
 
 data Square = Full Block | Empty
-              deriving (Show)
+              deriving (Eq, Show)
 
 data Block = B2
            | B4
@@ -38,7 +40,7 @@ data Block = B2
            | B512
            | B1024
            | B2048
-           deriving (Show, Eq, Ord, Enum)
+           deriving (Show, Eq, Ord, Enum, Bounded)
 
 emptyBoard :: Board
 emptyBoard = Board $ array (minBound, maxBound) $
