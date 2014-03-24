@@ -10,11 +10,14 @@ module Board (Board (..),
               emptyBoard,
               getSquare,
               setSquare,
+              getEmpties,
+              getSquares,
               showBoard) where
 
 import Data.Array
 
 data Board = Board (Array Row (Array Col Square))
+    deriving (Eq)
 
 instance Show Board where
     show = showBoard
@@ -57,6 +60,20 @@ setSquare :: Row -> Col -> Square -> Board -> Board
 setSquare row col sqr (Board board) =
     Board $ board // [(row, newRow)]
     where newRow = board ! row // [(col, sqr)]
+
+--Produce list of indices of empty squares
+getEmpties :: Board -> [(Row, Col)]
+getEmpties board = fmap dropSqr $ filter isEmpty $ getSquares board
+    where isEmpty (_, _, Empty) = True
+          isEmpty _             = False
+          dropSqr (row, col, _) = (row, col)
+
+getSquares :: Board -> [(Row, Col, Square)]
+getSquares (Board b) =
+    let (rows, colArrs) = unzip $ assocs b
+        (cols, squares) = unzip $ concatMap assocs colArrs
+        rows' = concatMap (replicate $ length cols `div` length rows) rows
+    in zip3 rows' cols squares
 
 --Pretty printer
 showBoard :: Board -> String
