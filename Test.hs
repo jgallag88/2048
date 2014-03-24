@@ -23,7 +23,7 @@ instance Arbitrary Board where
 instance Arbitrary Move where
     arbitrary = elements [Left, Right, Up, Down]
  
-sameSum board dir = getSum board == getSum (move dir board)
+sameSum board dir = getSum board == getSum (push dir board)
 
 getSum (Board board) = sum squares
     where squares = map getIntVal $ concatMap elems $ elems board
