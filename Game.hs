@@ -18,6 +18,7 @@ data Move = Left | Right | Up | Down
 
 playGame :: IO ()
 playGame = do
+    hSetBuffering stdin NoBuffering
     hSetEcho stdin False
     gen <- getStdGen
     play $ newGame gen
