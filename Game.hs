@@ -3,6 +3,7 @@ module Game where
 import Prelude hiding (Left, Right)
 import System.Random
 import System.IO
+import System.Console.ANSI
 import Board
 
 data Game = Game GameState Board StdGen
@@ -21,6 +22,7 @@ playGame = do
     gen <- getStdGen
     play $ newGame gen
     where play game@(Game _ board gen') = do
+            clearScreen
             print board
             dir <- getMove
             let game'@(Game state board' _) = move dir game
