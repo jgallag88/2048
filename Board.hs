@@ -10,6 +10,8 @@ module Board (BoardT (..),
               Block (..),
               emptyBoard,
               initBoardT,
+              initBoardTList,
+              indicesBoardT,
               getSquare,
               setSquare,
               getEmpties,
@@ -17,9 +19,19 @@ module Board (BoardT (..),
               showBoard) where
 
 import Data.Array
+import Control.Applicative
 
 data BoardT a = BoardT (Array Row (Array Col a))
     deriving (Eq)
+
+instance Functor BoardT where
+    fmap f (BoardT b) = BoardT $ fmap (fmap f) b
+
+instance Applicative BoardT where
+    pure = initBoardT
+    x <*> y = initBoardTList $ getVals x <*> getVals y
+        where getVals = third . unzip3 . getSquares 
+              third (_, _, z) = z
 
 type Board = BoardT Square
 
@@ -61,6 +73,23 @@ initBoardT val = BoardT $ array (minBound, maxBound) $
     where 
        mkRow = array (minBound, maxBound) $ 
                      map (,val) [minBound .. maxBound]
+
+initBoardTList :: [a] -> BoardT a
+initBoardTList vals = fillBoard vals (indicesBoardT board) board
+    where
+       board = BoardT $ array (minBound, maxBound) cols 
+       cols = map (,mkCol) [minBound .. maxBound]
+       mkCol = array (minBound, maxBound) []
+       fillBoard _ [] board'
+             = board'
+       fillBoard (x:xs) ((row,col):indx) board'
+             = setSquare row col x $ fillBoard xs indx board'
+       fillBoard [] _ _ = error "Not enough elements"
+
+indicesBoardT :: BoardT a -> [(Row, Col)]
+indicesBoardT (BoardT b) = (,) <$> rows <*> cols
+    where rows = indices b
+          cols = indices $ b ! head rows
 
 getSquare :: Row -> Col -> BoardT a -> a
 getSquare row col (BoardT board) =
