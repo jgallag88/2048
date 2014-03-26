@@ -13,9 +13,6 @@ data GameState = Win | Loss | Ongoing
 data Move = Left | Right | Up | Down
             deriving (Show)
 
---newGame :: IO ()
---newGame = hSetEcho stdin False >> getStdGen >>= playGame . Game emptyBoard >> return ()
-
 playGame :: IO ()
 playGame = do
     hSetBuffering stdin NoBuffering

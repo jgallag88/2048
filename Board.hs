@@ -1,13 +1,15 @@
 --Version of 2048 game
 {-# LANGUAGE TupleSections #-}
 
-module Board (Board (..),
+module Board (BoardT (..),
+              Board,
               Index (..),
               Row,
               Col,
               Square (..),
               Block (..),
               emptyBoard,
+              initBoardT,
               getSquare,
               setSquare,
               getEmpties,
@@ -16,10 +18,12 @@ module Board (Board (..),
 
 import Data.Array
 
-data Board = Board (Array Row (Array Col Square))
+data BoardT a = BoardT (Array Row (Array Col a))
     deriving (Eq)
 
-instance Show Board where
+type Board = BoardT Square
+
+instance Show a => Show (BoardT a) where
     show = showBoard
 
 --Type for indices of the board
@@ -30,7 +34,10 @@ type Row = Index
 type Col = Index
 
 data Square = Full Block | Empty
-              deriving (Eq, Show)
+              deriving (Eq)
+
+instance Show Square where 
+    show = showSquare
 
 data Block = B2
            | B4
@@ -46,19 +53,22 @@ data Block = B2
            deriving (Show, Eq, Ord, Enum, Bounded)
 
 emptyBoard :: Board
-emptyBoard = Board $ array (minBound, maxBound) $
+emptyBoard = initBoardT Empty
+
+initBoardT :: a -> BoardT a
+initBoardT val = BoardT $ array (minBound, maxBound) $
                            map (,mkRow) [minBound .. maxBound]
     where 
        mkRow = array (minBound, maxBound) $ 
-                     map (,Empty) [minBound .. maxBound]
+                     map (,val) [minBound .. maxBound]
 
-getSquare :: Row -> Col -> Board -> Square
-getSquare row col (Board board) =
+getSquare :: Row -> Col -> BoardT a -> a
+getSquare row col (BoardT board) =
     board ! row ! col 
 
-setSquare :: Row -> Col -> Square -> Board -> Board
-setSquare row col sqr (Board board) =
-    Board $ board // [(row, newRow)]
+setSquare :: Row -> Col -> a -> BoardT a -> BoardT a
+setSquare row col sqr (BoardT board) =
+    BoardT $ board // [(row, newRow)]
     where newRow = board ! row // [(col, sqr)]
 
 --Produce list of indices of empty squares
@@ -68,15 +78,15 @@ getEmpties board = fmap dropSqr $ filter isEmpty $ getSquares board
           isEmpty _             = False
           dropSqr (row, col, _) = (row, col)
 
-getSquares :: Board -> [(Row, Col, Square)]
-getSquares (Board b) =
+getSquares :: BoardT a -> [(Row, Col, a)]
+getSquares (BoardT b) =
     let (rows, colArrs) = unzip $ assocs b
         (cols, squares) = unzip $ concatMap assocs colArrs
         rows' = concatMap (replicate $ length cols `div` length rows) rows
     in zip3 rows' cols squares
 
 --Pretty printer
-showBoard :: Board -> String
+showBoard :: Show a => BoardT a -> String
 showBoard board =  
     foldl mkRow borderRow indexRange   
     where 
@@ -87,7 +97,7 @@ showBoard board =
                        borderRow
             where textLine = foldl mkBox "|" indexRange
                   mkBox acc' col = acc'
-                                   ++ padCenter width (showSquare $ getSquare row col board)
+                                   ++ padCenter width (show $ getSquare row col board)
                                    ++ "|"
                   blankLine = "|" 
                               ++ concat (replicate rows (replicate width ' ' ++ "|"))

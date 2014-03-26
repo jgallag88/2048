@@ -1,4 +1,6 @@
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 import Prelude hiding (Left, Right)
 import Game 
@@ -25,7 +27,7 @@ instance Arbitrary Move where
  
 sameSum board dir = getSum board == getSum (push dir board)
 
-getSum (Board board) = sum squares
+getSum (BoardT board) = sum squares
     where squares = map getIntVal $ concatMap elems $ elems board
           getIntVal Empty    = 0
           getIntVal (Full s) = 2 ^ (1 + fromEnum s) 
