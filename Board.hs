@@ -16,6 +16,7 @@ module Board (BoardT (..),
               setSquare,
               getEmpties,
               getSquares,
+              squareVal,
               showBoard) where
 
 import Data.Array
@@ -113,6 +114,13 @@ getSquares (BoardT b) =
         (cols, squares) = unzip $ concatMap assocs colArrs
         rows' = concatMap (replicate $ length cols `div` length rows) rows
     in zip3 rows' cols squares
+
+blockVal :: Block -> Int
+blockVal b = 2 ^ (1 + fromEnum b) 
+
+squareVal :: Square -> Int
+squareVal Empty    = 0
+squareVal (Full s) = blockVal s
 
 --Pretty printer
 showBoard :: Show a => BoardT a -> String

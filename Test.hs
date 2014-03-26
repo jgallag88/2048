@@ -28,8 +28,6 @@ instance Arbitrary Move where
 sameSum board dir = getSum board == getSum (push dir board)
 
 getSum (BoardT board) = sum squares
-    where squares = map getIntVal $ concatMap elems $ elems board
-          getIntVal Empty    = 0
-          getIntVal (Full s) = 2 ^ (1 + fromEnum s) 
+    where squares = map squareVal $ concatMap elems $ elems board
 
 main = quickCheck sameSum
