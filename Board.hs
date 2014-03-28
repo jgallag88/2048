@@ -1,5 +1,6 @@
 --Version of 2048 game
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE DeriveFoldable #-}
 
 module Board (BoardT (..),
               Board,
@@ -21,9 +22,10 @@ module Board (BoardT (..),
 
 import Data.Array
 import Control.Applicative
+import qualified Data.Foldable as F
 
 data BoardT a = BoardT (Array Row (Array Col a))
-    deriving (Eq)
+    deriving (Eq, F.Foldable)
 
 instance Functor BoardT where
     fmap f (BoardT b) = BoardT $ fmap (fmap f) b
