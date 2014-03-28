@@ -30,8 +30,8 @@ instance Functor BoardT where
 
 instance Applicative BoardT where
     pure = initBoardT
-    x <*> y = initBoardTList $ getVals x <*> getVals y
-        where getVals = third . unzip3 . getSquares 
+    x <*> y = initBoardTList . getZipList $ getVals x <*> getVals y
+        where getVals = ZipList . third . unzip3 . getSquares 
               third (_, _, z) = z
 
 type Board = BoardT Square
